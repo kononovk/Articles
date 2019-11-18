@@ -1,0 +1,289 @@
+\documentclass{beamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{hyphenat}
+\usepackage[T2A,T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\usetheme{Madrid}
+
+\title{Сети и потоки. Алгоритм Диница}
+
+\author{~Кононов Николай}
+
+\institute[СПБГУ]
+{
+    Математико-Механический факультет СПбГУ
+}
+\date{2019}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>{План}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{План}
+  \tableofcontents
+\end{frame}
+
+
+\section{Сети и потоки}
+
+\subsection{Простейшие понятия}
+
+\begin{frame}{Сеть}
+  \begin{itemize}
+  \item {
+    \textbf{Определение: } Пусть есть множество вершин V, в котором выделены две вершины: s (вход или исток) и t (выход или сток). \\Пусть определена функция $c:V \times V \rightarrow \mathbb{R}$, удовлетворяющая соотношениям $$\forall x, y \in V \quad c(x, y) \geq 0, c(x, s) = 0, c(t, y) = 0 $$
+    Тогда $ G = (V, s, t, c) $ - сеть, функция $c$ - пропускная способность.
+    \pause
+  }
+  \item {
+    $A(G) = {(x, y) : c(x, y) > 0}$ - множество стрелок сети $G$
+  }
+  \end{itemize}
+\end{frame}
+
+% You can reveal the parts of a slide one at a time
+% with the \pause command:
+\begin{frame}{Поток в сети}
+  \begin{itemize}
+  \item {
+    \textbf{Определение: } Пусть $G - $ сеть, а функция $f:V \times V \rightarrow \mathbb{R}$ удовлетворяет трем условиям:\\
+        1) $\forall x, y \in V \quad f(x, y) \leq c(x, y)$\\
+        2) $\forall x, y \in V \quad f(x, y) = -f(y, x)$\\
+        3) $\forall v \in V\textbackslash{t, q}$ выполняется условие: $$ \sum\limits_{v \in V} f(v, x) = 0$$
+    \\ $f$ - \textbf{поток в сети $G$}
+    \pause
+  }
+  \item {
+    $ |f| = \sum\limits_{v \in V} f(s, x)$ - величина потока\\
+        Поток с максимальной величиной - \textbf{максимальный}
+  }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Разрез сети}
+  \begin{itemize}
+    \item {
+        \textbf{Определение: } пусть $G$ - сеть, а множество ее вершин $V$ разбито на два дизъюнктых множества $S \ni s$ и $T \ni t$. Тогда $(S,T)$ - разрез сети G
+        \pause
+    }
+    \item {
+        Величина $c(S, T) =  \sum\limits_{x \in S, y \in T} c(x, y)$ называется \emph{пропускной способностью разреза}. \\ Любой разрез сети G с минимальной пропускной способностью называется \emph{минимальным}.
+    }
+    \item {
+        Для любого потока f величина $f(S, T) =  \sum\limits_{x \in S, y \in T} f(x, y)$ называется \emph{потоком через разрез}.
+        \pause
+    }
+    \end{itemize}
+    \begin{block}{Лемма}
+        \textbf{Лемма: } Для любого потока $f$, и разреза $(S, T)$ сети $G$ выполняется $|f| = f(S, T)$
+    \end{block}
+\end{frame}
+
+\subsection{Остаточная сеть, блокирующий поток, слоистая сеть}
+
+\begin{frame}{Остаточная сеть}
+    \begin{exampleblock}{Определение}
+        \textbf{Остаточной сетью} $G_{f}$ по отношению к сети $G$ и потоку $f$ в ней называется сеть, в которой каждому ребру $(u, v) \in G$ с пропускной способностью $c^{uv}$ и потоком $f^{uv}$ соответствует два ребра: \\
+            1) $(u, v)$ с пропускной способностью $c_{f}^{uv} = c^{uv} - f^{uv}$\\
+            2) $(v, u)$ с пропускной способностью $c_{f}^{vu} = f^{vu}$
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Еще одно определение}
+        \textbf{Остаточной сетью} $G_{f}$ по отношению к сети $G = \{V, s, t, c\}$ и потоку $f$ в ней называется сеть $G_{f} = \{V, s, t, c_{f}\}$, где 
+        \begin{equation*}
+        c_{f}(x, y) = 
+         \begin{cases}
+           0 &\text{if y = s or x = t}\\
+           c(x, y) - f(x, y) &\text{otherwise}
+         \end{cases}
+        \end{equation*}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Остаточная сеть}
+Остаточное ребро можно интуитивно понимать как меру того, насколько еще можно увеличить поток вдоль какого-то ребра:\\ если по ребру $(u, v)$ с пропускной способностью $c_{uv}$ протекает поток $f_{uv}$, то по нему можно пустить еще $c_{uv} - f_{uv}$ единиц потока, а в обратную сторону до $f_{uv}$ единиц потока.
+\begin{exampleblock}{Определение}
+Простой st-путь в $G_{f}$ называется \textbf{дополняющим путем}
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Блокирующий поток. Теорема Форда-Фалкерсона}
+    \begin{exampleblock}{Определение}
+        \textbf{Блокирующим потоком $f$} в сети $G = (V, s, t, c)$ называется такой поток, что $\forall st$-путь содержит насыщенное этим потоком ребро. То есть в данной сети любой путь из истока в сток нельзя беспрепятственно увеличить.
+    \end{exampleblock}
+    \pause
+    \begin{theorem}
+        \textbf{Ford-Fulkerson:} В сети $G$ с пропускной способностью $c$ задан поток $f$, тогда \textit{следующие три утверждения равносильны:\\
+        1) Поток f максимален\\
+        2) $\exists (S, T)$ такой, что $|f| = c(S, T)$\\
+        3) В остаточной сети $G_f$ нет дополняющего пути
+        }
+    \end{theorem}
+    \begin{itemize}
+        \item \textbf{Замечание: } блокирующий поток не всегда максимален
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Слоистая сеть}
+для данной сети строится следующим образом. Сначала определяются длины кратчайших путей из истока $s$ до всех остальных вершин; назовём уровнем ${\rm level}[v]$ вершины её расстояние от истока. Тогда в слоистую сеть включают все те рёбра $(u,v)$ исходной сети, которые ведут с одного уровня на какой-либо другой, более поздний, уровень, т.е. ${\rm level}[u] + 1 = {\rm level}[v]$ (почему в этом случае разница расстояний не может превосходить единицы, следует из свойства кратчайших расстояний). Таким образом, удаляются все рёбра, расположенные целиком внутри уровней, а также рёбра, ведущие назад, к предыдущим уровням.
+\end{frame}
+
+\section{Алгоритм Диница}
+
+\subsection{Основные идеи}
+
+\begin{frame}{Алгоритм Диница. Основные идеи}
+    \begin{block}{Постановка задачи}
+    Пусть дана сеть $G = (V, s, t, c)$. Как найти поток $f$ из $s$ в $t$ максимальной величины?
+    \end{block}
+    \begin{itemize}
+        \item {
+        Алгоритм является улучшенной версией \textbf{Алгоритма Эдмонса-Карпа}
+        \pause
+        }
+        \item {
+        Алгоритм состоит из нескольких \textbf{фаз}.
+        \pause
+        }
+        \item {
+        На каждой фазе строится остаточная сеть \textbf{$G_f$}, затем по отношению к $G_f$ строится слоистая сеть(\textbf{BFS})
+        \pause
+        }
+        \item {
+        В построенной слоистой сети находим блокирующий поток(любой)
+        \pause
+        }
+        \item {
+        Прибавляем блокирующий поток к текущему потоку
+        }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Корректность алгоритма}
+
+\end{frame}
+
+% Placing a * after \section means it will not show in the
+% outline or table of contents.
+\section*{Summary}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item
+    he \alert{first main message} of your talk in one or two lines.
+  \item
+    The \alert{second main message} of your talk in one or two lines.
+  \item
+    Perhaps a \alert{third message}, but not more than that.
+  \end{itemize}
+
+  \begin{itemize}
+  \item
+    Outlook
+    \begin{itemize}
+    \item
+      Something you haven't solved.
+    \item
+      Something else you haven't solved.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+
+% All of the following is optional and typically not needed.
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{For Further Reading}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{For Further Reading}
+
+  \begin{thebibliography}{10}
+
+  \beamertemplatebookbibitems
+  % Start with overview books.
+
+  \bibitem{Author1990}
+    A.~Author.
+    \newblock {\em Handbook of Everything}.
+    \newblock Some Press, 1990.
+
+
+  \beamertemplatearticlebibitems
+  % Followed by interesting articles. Keep the list short.
+
+  \bibitem{Someone2000}
+    S.~Someone.
+    \newblock On this and that.
+    \newblock {\em Journal of This and That}, 2(1):50--100,
+    2000.
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
+The \alert{first main message} of your talk in one or two lines.
+  \item
+    The \alert{second main message} of your talk in one or two lines.
+  \item
+    Perhaps a \alert{third message}, but not more than that.
+  \end{itemize}
+
+  \begin{itemize}
+  \item
+    Outlook
+    \begin{itemize}
+    \item
+      Something you haven't solved.
+    \item
+      Something else you haven't solved.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+
+% All of the following is optional and typically not needed.
+\appendix
+\section<presentation>*{\appendixname}
+\subsection<presentation>*{For Further Reading}
+
+\begin{frame}[allowframebreaks]
+  \frametitle<presentation>{For Further Reading}
+
+  \begin{thebibliography}{10}
+
+  \beamertemplatebookbibitems
+  % Start with overview books.
+
+  \bibitem{Author1990}
+    A.~Author.
+    \newblock {\em Handbook of Everything}.
+    \newblock Some Press, 1990.
+
+
+  \beamertemplatearticlebibitems
+  % Followed by interesting articles. Keep the list short.
+
+  \bibitem{Someone2000}
+    S.~Someone.
+    \newblock On this and that.
+    \newblock {\em Journal of This and That}, 2(1):50--100,
+    2000.
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
