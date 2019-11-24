@@ -8,8 +8,11 @@
 \usepackage[T2A,T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage{listings}
-\usepackage{xcolor}
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{fancyhdr,graphicx,amsmath,amssymb}
+\usepackage[ruled,vlined]{algorithm2e}
+\include{pythonlisting}
 
 \usetheme{Madrid}
 
@@ -357,12 +360,26 @@
         Таким образом весь алгоритм отработает за $O(P \cdot V + \sum_{i} K_{i} $ = $O(P \cdot V + E)$. В худшем случае, когда P = E, $O(V \cdot E)$
     \end{itemize}
 \end{frame}
-\begin{enumerate}
-\end{enumerate}
 
 \subsection{Реализация}
 \begin{frame}{Реализация}{Удаляющий обход}
+\begin{figure}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.5]{dfs.png}
+        \label{fig:dfs}
+    \end{figure}
+\end{figure}
+\end{frame}
 
+\begin{frame}{Реализация}
+\begin{figure}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.8]{main.png}
+        \label{fig:dfs}
+    \end{figure}
+\end{figure}
 \end{frame}
 
 \begin{frame}[allowframebreaks]
